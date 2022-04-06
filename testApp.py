@@ -25,6 +25,7 @@ while True:
     for face in faces:
 
         landmarks = predictor(gray, face)   #detect landmarks in each face found one by one 
+        
         if (checkDrowsiness(landmarks)):
             count = count+1
         else:

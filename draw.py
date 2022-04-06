@@ -1,13 +1,13 @@
 import cv2
 
-def put_red_rectangle(face,frame):
+def put_red_rectangle(frame,face):
     x,y = face.left(), face.top()
     x1,y1 = face.right(), face.bottom()
     cv2.rectangle(frame, (x,y), (x1,y1), (0, 0, 255), 2)
     return frame
 
 
-def put_text(face,frame):
+def put_text(frame,face):
     font = cv2.FONT_HERSHEY_TRIPLEX   # for font of image 
     x,y = face.left(), face.top()
     x1,y1 = face.right(), face.bottom()    
@@ -15,7 +15,7 @@ def put_text(face,frame):
     return frame
 
 
-def put_rectangle(face,frame):
+def put_rectangle(frame,face):
     x,y = face.left(), face.top()
     x1,y1 = face.right(), face.bottom()
     cv2.rectangle(frame, (x,y), (x1,y1), (0, 255, 0), 2)
