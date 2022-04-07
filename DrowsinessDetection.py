@@ -54,20 +54,28 @@ def checkDrowsiness(landmarks):
         print()
 
         if ((mouth_opening_ratio > 0.38 and blinking_ratio > 4 ) or blinking_ratio > 4.5):
-            print("**************DROWSY**************")
+            print("**************DROWSY %************** 100")
             print()
             print("----------------------FRAME END----------------------------")
             return True
         else :
-
-
-
-            '''here we have to calculate how much drowsy is the driver in  %'''
+        
+            '''here we are calculateing how much drowsy is the driver in  %'''
             
             
+            mouth_per=(mouth_opening_ratio/0.38)*100
+            blink_per=(blinking_ratio/4)*100
+            print("Mouth per = ",mouth_per)
+            print("blink per = ",blink_per)
+            avg_mouth_blink_per=(mouth_per+blink_per)/2
+            avg_blink_ratio=(blinking_ratio/4.5)*100
+           
+            drowsy_per=max(avg_mouth_blink_per,avg_blink_ratio)
             
+            if((mouth_opening_ratio > 0.38)):
+            	drowsy_per=avg_blink_ratio
             
-            print("*************DROWSY**************")
+            print("*************DROWSY %**************",str(drowsy_per))
             print()
             print("----------------------FRAME END----------------------------")
             return False

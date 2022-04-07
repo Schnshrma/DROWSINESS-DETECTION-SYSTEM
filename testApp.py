@@ -33,11 +33,13 @@ while True:
 
         if count>8:
             freq = freq+100
+            duration=duration+0.05
             frame=put_red_rectangle(frame,face)
             frame=put_text(frame,face)
             os.system('play -nq -t alsa synth {} sine {}'.format(duration, freq))
         else:
             freq=1500
+            duration = 0.25
             frame=put_rectangle(frame,face)
             
 
