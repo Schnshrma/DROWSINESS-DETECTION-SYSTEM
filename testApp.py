@@ -1,10 +1,12 @@
 import cv2#Video capturing
 import os
-from DrowsinessDetection import *
+# from DrowsinessDetection import *
+from DrowsinessDetection2 import *
 from detection import *
 from draw import *
+import pickle
 
-duration = 0.25 # seconds "alarm duration"
+duration = 0.1 # seconds "alarm duration"
 freq = 1500  # Hz
 
 cap = cv2.VideoCapture(0)#for local access camera
@@ -31,15 +33,15 @@ while True:
         else:
             count = 0
 
-        if count>8:
+        if count>12:
             freq = freq+100
-            duration=duration+0.05
+            duration=duration+0.01
             frame=put_red_rectangle(frame,face)
             frame=put_text(frame,face)
             os.system('play -nq -t alsa synth {} sine {}'.format(duration, freq))
         else:
             freq=1500
-            duration = 0.25
+            duration = 0.1
             frame=put_rectangle(frame,face)
             
 
@@ -51,3 +53,14 @@ while True:
 
 cap.release()
 cv2.destroyAllWindows()
+
+# eyeBlinkingRatio = getBlinkingRatios()
+
+# with open("eyeBlinkingData2", "wb") as fp:   #Pickling
+#     pickle.dump(eyeBlinkingRatio, fp)
+
+# mouthRatios = getMouthRatios()
+
+# with open("mouthData2", "wb") as fp:   #Pickling
+#     pickle.dump(mouthRatios, fp)
+
