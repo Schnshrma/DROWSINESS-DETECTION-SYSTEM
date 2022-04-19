@@ -7,7 +7,7 @@ from draw import *
 import pickle
 
 duration = 0.1 # seconds "alarm duration"
-freq = 1500  # Hz
+freq = 2000  # Hz
 
 cap = cv2.VideoCapture(0)#for local access camera
 
@@ -33,14 +33,14 @@ while True:
         else:
             count = 0
 
-        if count>12:
-            freq = freq+100
+        if count>10:
+            freq = freq-50
             duration=duration+0.01
             frame=put_red_rectangle(frame,face)
             frame=put_text(frame,face)
             os.system('play -nq -t alsa synth {} sine {}'.format(duration, freq))
         else:
-            freq=1500
+            freq=2000
             duration = 0.1
             frame=put_rectangle(frame,face)
             
