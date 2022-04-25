@@ -1,3 +1,4 @@
+from configparser import ConfigParser
 import cv2#Video capturing
 import os
 # from DrowsinessDetection import *
@@ -6,14 +7,25 @@ from detection import *
 from draw import *
 import pickle
 
-duration = 0.1 # seconds "alarm duration"
-freq = 2000  # Hz
+#Read config.ini file
+config_object = ConfigParser()
+config_object.read("config.ini")
+
+#Get the count, duration and frequency from config file
+serveConf = config_object["SERVERCONFIG"]
+print("Password is {}".format(serveConf["count"]))
+count = serveConf["count"] # Threshold for detecting drowsiness of person
+duration = serveConf["duration"] # seconds "alarm duration"
+freq = serveConf["frequency"] # Hz
+print(count)
+
+#duration = 0.1 # seconds "alarm duration"
+#freq = 2000  # Hz
 
 cap = cv2.VideoCapture(0)#for local access camera
 
 #font = cv2.FONT_HERSHEY_TRIPLEX# for font of image 
 
-count = 0
 
 while True:
     _, frame = cap.read()
