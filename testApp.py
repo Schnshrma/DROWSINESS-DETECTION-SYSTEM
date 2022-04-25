@@ -13,11 +13,13 @@ config_object.read("config.ini")
 
 #Get the count, duration and frequency from config file
 serveConf = config_object["SERVERCONFIG"]
-print("Password is {}".format(serveConf["count"]))
-count = serveConf["count"] # Threshold for detecting drowsiness of person
+print("countThreshold is {}".format(serveConf["countThreshold"]))
+countThreshold = serveConf["countThreshold"] # Threshold for detecting drowsiness of person
 duration = serveConf["duration"] # seconds "alarm duration"
 freq = serveConf["frequency"] # Hz
-print(count)
+durationChange = serveConf["durationChange"] # Hz
+frequencyChange = serveConf["frequencyChange"] # Hz
+print(frequencyChange)
 
 #duration = 0.1 # seconds "alarm duration"
 #freq = 2000  # Hz
@@ -26,6 +28,7 @@ cap = cv2.VideoCapture(0)#for local access camera
 
 #font = cv2.FONT_HERSHEY_TRIPLEX# for font of image 
 
+count = 0
 
 while True:
     _, frame = cap.read()
@@ -45,15 +48,15 @@ while True:
         else:
             count = 0
 
-        if count>10:
-            freq = freq-50
-            duration=duration+0.01
+        if count>countThreshold:
+            freq = freq-frequencyChange
+            duration=duration+durationChange
             frame=put_red_rectangle(frame,face)
             frame=put_text(frame,face)
             os.system('play -nq -t alsa synth {} sine {}'.format(duration, freq))
         else:
-            freq=2000
-            duration = 0.1
+            freq=serveConf["frequency"]
+            duration = serveConf["duration"]
             frame=put_rectangle(frame,face)
             
 
