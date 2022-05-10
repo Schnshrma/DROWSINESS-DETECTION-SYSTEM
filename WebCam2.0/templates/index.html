@@ -4,11 +4,15 @@
 
 <script src="{{url_for('static', filename='/js/opencv.js')}}"></script>
 
-<div id="container">    
-    <canvas id="canvasOutput"></canvas>    
+<div id="container">     
     <video hidden autoplay="true" id="videoElement"></video>
 </div>
-<div class = 'video'>    
+
+<div class = 'video'>   
+    Latency in milliseconds
+    <div id="latency">
+
+    </div> 
     <img id="image">
 </div>
 <script>    
@@ -20,7 +24,7 @@
     
     const video = document.querySelector("#videoElement");    
     video.width = 500;     
-    video.height = 375; ;    
+    video.height = 375;     
     if (navigator.mediaDevices.getUserMedia) {        
             navigator.mediaDevices.getUserMedia({ 
                 video: true 
@@ -52,17 +56,36 @@
         var data = canvas.toDataURL();
         
         data = data.replace('data:' + type + ';base64,', '');        
-        // console.log(data) 
+        timeStamp = Date.now().toString();
+        data = data+","+timeStamp;
+        
         socket.emit('image', data);    
     }, 10000/FPS);    
                 
-    socket.on('response_back', function(image){  
+    socket.on('response_back', function(imageData){
                     
+                    arrayData = imageData.split("|");  
+                    image = arrayData[0];
                     const image_id = document.getElementById('image');        
-                    image_id.src = image;    });
+                    image_id.src = image;    
+
+                    div = document.getElementById('latency');
+                    div.textContent = new Date().getTime() - new Date(parseInt(arrayData[1]) ).getTime();
+                    
+    });
 
     socket.on('raise_alarm',function(status){
-        console.log("alarm alarm");
+        var context = new AudioContext();
+        var oscillator = context.createOscillator();
+        oscillator.type = "sine";
+        oscillator.frequency.value = 800;
+        oscillator.connect(context.destination);
+        oscillator.start(); 
+        // Beep for 500 milliseconds
+        setTimeout(function () {
+            oscillator.stop();
+        }, 100); 
     });
+
 </script>
 

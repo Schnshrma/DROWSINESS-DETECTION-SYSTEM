@@ -16,6 +16,7 @@ cors = CORS(app)
 socketio = SocketIO(app, cors_allowed_origins="*")
 
 
+
 @app.route('/')
 @cross_origin()
 def index():
@@ -28,6 +29,10 @@ def image(data_image):
     sbuf = StringIO()    
     sbuf.write(data_image)
 
+    arrayData = data_image.split(',')
+    data_image = arrayData[0]
+    timeStamp = arrayData[1]
+    
     # decode and convert into image   
     b = io.BytesIO(base64.b64decode(data_image))    
     pimg = Image.open(b)    
@@ -46,7 +51,7 @@ def image(data_image):
     # base64 encode    
     stringData = base64.b64encode(imgencode).decode('utf-8')    
     b64_src = 'data:image/png;base64,'    
-    stringData = b64_src + stringData    
+    stringData = b64_src + stringData +"|"+timeStamp
     
     # emit the frame back    
     emit('response_back', stringData)
