@@ -1,0 +1,166 @@
+<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js" integrity="sha512-q/dWJ3kcmjBLU4Qc47E4A9kTB4m3wuTY7vkFJDTZKjTs8jhyGQnaUrxa0Ytd0ssMZhbNua9hE+E7Qv1j+DyZwA==" crossorigin="anonymous"></script>
+<script src="{{url_for('static', filename='js/opencv.js')}}"></script>
+<script src="{{url_for('static', filename='js/zlib.min.js')}}"></script>
+<body>
+    
+    
+    <div class = 'video'>   
+        Latency in milliseconds
+        <div id="latency">
+    
+        </div>
+       
+            <!-- <img id="image" style="border:thick solid"> -->
+        
+        
+    </div>
+    <div id="container">     
+        <video autoplay="true" id="videoElement" style="border:thick solid"></video>
+        <div>
+            <br/>
+            <label for="quantity">Frames to be send(between 1 and 10):</label>
+            <input type="number" id="quantity" name="quantity" min="1" max="10">
+
+        </div>
+    </div>
+</body>
+
+
+<script type="text/javascript" charset="utf-8">
+    var socket = io();
+    socket.on('connect', function() {
+        socket.emit('my event', {data: 'I\'m connected!'});
+    });
+    // setInterval(() => {        
+    //     socket.emit('my_event', "data"); 
+    //     }, 10000/30); 
+     
+    // socket.on('my_response', function(data){
+    //                     console.log(data);
+    //     });
+    const video = document.querySelector("#videoElement");    
+        video.width = 400;     
+        video.height = 275;     
+        if (navigator.mediaDevices.getUserMedia) {        
+                navigator.mediaDevices.getUserMedia({ 
+                    video: true 
+                }) .then(function (stream) { 
+                            video.srcObject = stream;            
+                            video.play();        
+                    }) .catch(function (err0r) { 
+                            console.log(err0r)            
+                            console.log("Something went wrong!");        
+                        });   
+        }    
+        let src = new cv.Mat(video.height, video.width, cv.CV_8UC4);    
+        let dst = new cv.Mat(video.height, video.width, cv.CV_8UC1);   
+        
+        let cap = new cv.VideoCapture(video);    
+        const FPS = 30; 
+
+        var countOfFrames = 0;
+        var framesToSend = 5;
+
+        var quantityTextField = document.getElementById('quantity');
+        quantityTextField.value = framesToSend;
+
+        var listOfImages = "";   
+        setInterval(() => {        
+            cap.read(src);        
+            var type = "image/jpeg";        
+            
+            const video = document.getElementById("videoElement");
+            const canvas = document.createElement("canvas");
+
+            // canvas.width = video.videoWidth;
+            // canvas.height = video.videoHeight;
+
+            canvas.width = 400;
+            canvas.height = 275;
+
+            // draw the video at that frame
+            canvas.getContext('2d')
+            .drawImage(video, 0, 0, canvas.width, canvas.height);
+            // convert it to a usable data URL
+            var data = canvas.toDataURL("image/jpeg",0.8);
+            
+            // data = data.replace('data:' + type + ';base64,', '');  
+            data = data.replace('data:' + type + ';base64,', '');        
+            
+            
+            
+            // var dataArray = new Array(data.length);
+            // for (i = 0, il = data.length; i < il; ++i) {
+            //     dataArray[i] = data.charCodeAt(i);
+            // }
+            
+            // var deflate = new Zlib.Deflate(dataArray);
+            // var compressed = deflate.compress();
+
+            // console.log(compressed.length+" "+data.length);
+            listOfImages = listOfImages +data+",";    
+
+            if(countOfFrames >= framesToSend){
+
+                timeStamp = Date.now().toString();
+                compressed = listOfImages+timeStamp;
+                socket.emit('image', compressed);
+                countOfFrames = 0;
+                listOfImages = ""
+
+            }
+            
+           
+            // compressed = compressed+","+timeStamp;
+            countOfFrames += 1;
+            
+            
+        }, 10000/FPS);    
+                    
+        socket.on('response_back', function(imageData){
+                        
+                        // arrayData = imageData.split("timestamp");  
+                        // b64_src = 'data:image/jpeg;base64,';
+                        
+                        // int_array = arrayData[0].substring(1, arrayData[0].length-1).split(",").map(Number);
+                        
+                        // int_array = [].slice.call(int_array)
+                        
+                        
+                        // var inflate = new Zlib.Inflate(int_array);
+                        // var plain = inflate.decompress();
+                       
+                        // var strData  = String.fromCharCode.apply(null, new Uint16Array(plain));
+                        // console.log(strData);
+
+                        // console.log("-------------------"+int_array.length +" "+strData.length);
+                        // image = b64_src+strData;
+                        // image = b64_src+arrayData[0];
+
+                        // const image_id = document.getElementById('image');        
+                        // image_id.src = image;    
+
+                        div = document.getElementById('latency');
+                        div.textContent = new Date().getTime() - new Date(parseInt(imageData) ).getTime();
+                        
+        });  
+        socket.on('raise_alarm',function(status){
+            var context = new AudioContext();
+            var oscillator = context.createOscillator();
+            oscillator.type = "sine";
+            oscillator.frequency.value = 800;
+            oscillator.connect(context.destination);
+            oscillator.start(); 
+            document.getElementById("videoElement").style.borderColor="red";
+            // Beep for 500 milliseconds
+            setTimeout(function () {
+                oscillator.stop();
+                document.getElementById("videoElement").style.borderColor="white";
+            }, 1000); 
+    });  
+    quantityTextField.addEventListener('change', function(){
+        framesToSend = this.value;
+    });
+
+</script>
+
